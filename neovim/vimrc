@@ -1,0 +1,30 @@
+syntax enable
+set nocompatible
+set termguicolors
+set mouse=a
+set visualbell
+set number
+filetype indent on
+set ruler
+set foldmethod=syntax
+" Highlight search results
+set hlsearch
+
+" copy to system clipboard
+set clipboard=unnamedplus
+
+" Makes search act like search in modern browsers
+set incsearch
+set expandtab
+set smarttab
+set shiftwidth=4
+set tabstop=4
+set ai "Auto indent
+set si "Smart indent
+set wrap "Wrap lines
+" Linebreak on 500 characters
+set lbr
+set tw=500
+set ff=unix
+
+nmap <Enter> *
