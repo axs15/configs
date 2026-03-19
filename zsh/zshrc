@@ -1,5 +1,67 @@
-if [[ -f ~/.aliases ]]; then
-  source ~/.aliases
+# The following lines were added by compinstall
+zstyle ':completion:*' completer _expand _complete _ignored _approximate
+zstyle ':completion:*'  matcher-list 'm:{a-z}={A-Z}'
+zstyle :compinstall filename ~/.zshrc
+# End of lines added by compinstall
+# Lines configured by zsh-newuser-install
+HISTFILE=~/.histfile
+HISTSIZE=20000
+SAVEHIST=20000
+# End of lines configured by zsh-newuser-install
+# keyboard bindkeys
+bindkey -v
+# enable color support of ls, less and man, and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    export LESS_TERMCAP_mb=$'\E[1;31m'     # begin blink
+    export LESS_TERMCAP_md=$'\E[1;36m'     # begin bold
+    export LESS_TERMCAP_me=$'\E[0m'        # reset bold/blink
+    export LESS_TERMCAP_so=$'\E[01;33m'    # begin reverse video
+    export LESS_TERMCAP_se=$'\E[0m'        # reset reverse video
+    export LESS_TERMCAP_us=$'\E[1;32m'     # begin underline
+    export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
+    # Take advantage of $LS_COLORS for completion as well
+    zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+fi
+# If ~/.inputrc doesn't exist yet: First include the original /etc/inputrc
+# so it won't get overriden
+if [ ! -a ~/.inputrc ]; then 
+    echo '$include /etc/inputrc' > ~/.inputrc
+    # Add shell-option to ~/.inputrc to enable case-insensitive tab completion
+    echo 'set completion-ignore-case On' >> ~/.inputrc
+fi
+
+paths_to_add=(
+  ~/.local/bin
+  ~/.cargo/bin
+  ~/.opencode/bin
+  ~/tools/android_sdk/cmdline-tools/
+  ~/tools/android_sdk/platform-tools/
+)
+
+function addtopath() {
+    for p in ${paths_to_add[@]}; do
+      if [[ ! -d $1 ]]; then
+          continue
+      fi
+      if [[ $PATH==*$1* ]]; then
+          continue
+      fi
+      export PATH=${PATH}:$1
+    done
+}
+addtopath()
+
+
+# android stuff
+if [[ -d ~/tools/android_sdk/cmdline-tools/ ]]; then
+    if [[ -L /usr/lib/jvm/default ]]; then
+        export JAVA_HOME=/usr/lib/jvm/default
+    fi
+fi
+if [[ -d /usr/share/zsh/plugins ]]; then
+    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 
 # Nix
@@ -8,15 +70,24 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
 fi
 # End Nix
 
-if [[ -d ~/.local/bin ]]; then
-  export PATH=$PATH:~/.local/bin
+# source aliases if present
+[[ -f ~/.aliases  ]] && source ~/.aliases
+# Use a prompt
+if (( ${+commands[oh-my-posh]} )); then
+    eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/theme.json)"
 fi
-if (( ${+commands[nvim]} )); then
-  alias vi=nvim
+if (( ${+commands[zkbd]} )); then
+  autoload -Uz zkbd
+  source ~/.zkbd/$TERM
+  [[ -n ${key[Left]} ]] && bindkey "${key[Left]}" backward-char
+  [[ -n ${key[Right]} ]] && bindkey "${key[Right]}" forward-char
+  [[ -n ${key[Home]} ]] && bindkey "${key[Home]}" beginning-of-line
+  [[ -n ${key[End]} ]] && bindkey "${key[End]}" end-of-line
+  [[ -n ${key[Delete]} ]] && bindkey "${key[Delete]}" delete-char
+  [[ -n ${key[CtrlLeft]} ]] && bindkey "${key[CtrlLeft]}" backward-word
+  [[ -n ${key[CtrlRight]} ]] && bindkey "${key[CtrlRight]}" forward-word
 fi
-
 if (( ${+commands[gpg]} )); then
-
   unset SSH_AGENT_PID
   if [ "${gnupg_SSH_AUTH_SOCK_by:-0}" -ne $$ ]; then
     export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
@@ -24,3 +95,17 @@ if (( ${+commands[gpg]} )); then
   export GPG_TTY=$(tty)
   gpg-connect-agent updatestartuptty /bye >/dev/null
 fi
+if (( ${+commands[nvim]} )); then
+  export EDITOR='nvim'
+  export MANPAGER='nvim -c Man!'
+  alias vi=nvim
+fi
+if (( ${+commands[bat]} )); then
+    alias -g -- --help='--help | bat -l help --style=plain --theme="Monokai Extended"'
+    alias cat='bat --theme=TwoDark'
+fi
+if (( ${+commands[fzf]} )); then
+    source <(fzf --zsh)
+fi
+
+
