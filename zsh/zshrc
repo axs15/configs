@@ -1,4 +1,5 @@
 # The following lines were added by compinstall
+
 zstyle ':completion:*' completer _expand _complete _ignored _approximate
 zstyle ':completion:*'  matcher-list 'm:{a-z}={A-Z}'
 zstyle :compinstall filename ~/.zshrc
@@ -31,6 +32,7 @@ if [ ! -a ~/.inputrc ]; then
     echo 'set completion-ignore-case On' >> ~/.inputrc
 fi
 
+typeset -U path
 paths_to_add=(
   ~/.local/bin
   ~/.cargo/bin
@@ -41,16 +43,13 @@ paths_to_add=(
 
 function addtopath() {
     for p in ${paths_to_add[@]}; do
-      if [[ ! -d $1 ]]; then
+      if [[ ! -d $p ]]; then
           continue
       fi
-      if [[ $PATH==*$1* ]]; then
-          continue
-      fi
-      export PATH=${PATH}:$1
+      export PATH=${PATH}:$p
     done
 }
-addtopath()
+addtopath
 
 
 # android stuff
@@ -75,6 +74,9 @@ fi
 # Use a prompt
 if (( ${+commands[oh-my-posh]} )); then
     eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/theme.json)"
+else
+    autoload -Uz promptinit
+    prompt adam2
 fi
 if (( ${+commands[zkbd]} )); then
   autoload -Uz zkbd
