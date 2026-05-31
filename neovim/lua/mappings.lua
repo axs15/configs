@@ -2,6 +2,7 @@ local M = {}
 
 local wk = require("which-key")
 local ts = require("telescope.builtin")
+local snacks = require("plugins.snacks")
 
 M.general = {
     { "<Esc>", "<CMD>noh <CR>",             desc = "Clear highlights" },
@@ -47,47 +48,7 @@ wk.add(M.telescope)
 
 M.lspconfig = {
     -- See `<cmd> :help vim.lsp.*` for documentation on any of the below functions
-    {
-        "<leader>q",
-        function()
-            local lnum = vim.fn.line(".") - 1
-            local diagnostics = vim.diagnostic.get(0, { lnum = lnum })
-            if #diagnostics == 0 then return end
-
-            local severity_labels = {
-                [vim.diagnostic.severity.ERROR] = "ERROR",
-                [vim.diagnostic.severity.WARN]  = "WARN",
-                [vim.diagnostic.severity.INFO]  = "INFO",
-                [vim.diagnostic.severity.HINT]  = "HINT",
-            }
-
-            local lines = {}
-            for i, d in ipairs(diagnostics) do
-                if i > 1 then table.insert(lines, "") end
-                local label = severity_labels[d.severity] or "DIAG"
-                if d.source then label = label .. " [" .. d.source .. "]" end
-                if d.code   then label = label .. " (" .. tostring(d.code) .. ")" end
-                table.insert(lines, label)
-                for _, l in ipairs(vim.split(d.message, "\n", { plain = true })) do
-                    table.insert(lines, "  " .. l)
-                end
-            end
-
-            Snacks.win({
-                text = lines,
-                style = "float",
-                border = "rounded",
-                title = " Diagnostics ",
-                title_pos = "center",
-                relative = "cursor",
-                row = 1,
-                col = 0,
-                width = 70,
-                wo = { wrap = true },
-            })
-        end,
-        desc = "Show Diagnostics",
-    },
+    { "<leader>q", snacks.show_line_diagnostics, desc = "Show diagnostics" },
     {
         "<leader>]",
         function()
