@@ -1,13 +1,16 @@
 # The following lines were added by compinstall
 
 zstyle ':completion:*' completer _expand _complete _ignored _approximate
-zstyle ':completion:*'  matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle :compinstall filename ~/.zshrc
 # End of lines added by compinstall
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=20000
 SAVEHIST=20000
+setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_REDUCE_BLANKS SHARE_HISTORY
+setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS
+setopt NO_CLOBBER EXTENDED_GLOB
 # End of lines configured by zsh-newuser-install
 # keyboard bindkeys
 bindkey -v
@@ -23,13 +26,6 @@ if [ -x /usr/bin/dircolors ]; then
     export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
     # Take advantage of $LS_COLORS for completion as well
     zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
-fi
-# If ~/.inputrc doesn't exist yet: First include the original /etc/inputrc
-# so it won't get overriden
-if [ ! -a ~/.inputrc ]; then 
-    echo '$include /etc/inputrc' > ~/.inputrc
-    # Add shell-option to ~/.inputrc to enable case-insensitive tab completion
-    echo 'set completion-ignore-case On' >> ~/.inputrc
 fi
 
 typeset -U path
@@ -71,11 +67,13 @@ fi
 
 # source aliases if present
 [[ -f ~/.aliases  ]] && source ~/.aliases
+
 # Use a prompt
 if (( ${+commands[oh-my-posh]} )); then
     eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/theme.json)"
 else
     autoload -Uz promptinit
+    promptinit
     prompt adam2
 fi
 if (( ${+commands[zkbd]} )); then
@@ -102,6 +100,7 @@ if (( ${+commands[nvim]} )); then
   export MANPAGER='nvim -c Man!'
   alias vi=nvim
 fi
+# cargo installs
 if (( ${+commands[bat]} )); then
     alias -g -- --help='--help | bat -l help --style=plain --theme="Monokai Extended"'
     alias cat='bat --theme=TwoDark'
@@ -109,5 +108,8 @@ fi
 if (( ${+commands[fzf]} )); then
     source <(fzf --zsh)
 fi
-
+if (( ${+commands[lsd]} )); then
+    echo "found"
+    alias ls='lsd'
+fi
 
